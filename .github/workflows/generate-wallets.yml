@@ -1,0 +1,45 @@
+name: Generate Solana Wallets
+
+on:
+  workflow_dispatch: # Allows manual trigger of the workflow
+
+permissions:
+  contents: write # Grant write access to the repository contents
+
+jobs:
+  generate-wallets:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install @solana/web3.js bip39
+
+      # Step 4: Run the script to generate wallets
+      - name: Generate wallets
+        run: node generate_wallets.js
+
+      # Step 5: Configure Git
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Step 6: Commit and push changes
+      - name: Commit and push changes
+        run: |
+          git add solana_wallets.json
+          git commit -m "Add generated solana_wallets.json"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
